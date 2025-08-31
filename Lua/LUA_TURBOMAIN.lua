@@ -55,7 +55,7 @@ local function updateTurbo(p, rate, log)
 	p.turboGauge = max(0, min(p.turboGauge, p.turboMax)) -- Clamp entre 0 et max
 
 	p.turbopercent = (p.turboMax > 0) and ((p.turboGauge * 100) / p.turboMax) or 0
-	p.turboDisplayTimer = 0
+	p.turboDisplayTimer = p.displayDuration
 
 	-- Mise à jour du log et du gain
 	if log ~= p.turboaction then
@@ -93,7 +93,7 @@ local function useTurbo(p)
 	p.turboGauge = p.turboGauge - p.turboConsumptionRate
 	K_PlayBoostTaunt(p.mo)
 
-	local turboRatio = (p.turboGauge << FRACBITS) / p.turboMax -- turboRatio en "fixed"
+	local turboRatio = FixedDiv(p.turboGauge << FRACBITS, p.turboMax)
 	local boostAmount = 0
 
 	if turboRatio >= (FRACUNIT * 1) then
@@ -123,7 +123,7 @@ local function useTurbo(p)
 
 	p.kartstuff[k_sneakertimer] = max(2, p.kartstuff[k_sneakertimer])
 	
-	P_InstaThrust(player.mo, player.mo.angle, 100*player.mo.scale)
+	P_InstaThrust(p.mo, p.mo.angle, 100*p.mo.scale)
 	
 	-- Donner un coup de pouce direct à la vitesse si le joueur est trop lent
 	if p.speed < p.mo.scale * 12 then
@@ -276,10 +276,14 @@ hud.add(function(v, p, c) --Actual visual real HUD is in LUA_ACROHUD  - debug's 
 
 	if  p.exiting then return end --let's not get hasty here
 	
+	if p.turboDisplayTimer > 0 then
+		p.turboDisplayTimer = $ - 1
+	end
+	
 	if not(splitscreen)
 		v.drawString(12,65, "Turbo gauge :" .. p.turbopercent .. "%", V_SNAPTOLEFT,"left")
 		
-		if p.turboDisplayTimer < p.displayDuration  then
+		if p.turboDisplayTimer > 0 then
 			v.drawString(150,35, p.turboaction , V_SNAPTOLEFT,"center")
 			v.drawString(150,45, p.turbogain , V_SNAPTOLEFT,"center")
 		end
@@ -316,7 +320,7 @@ hud.add(function(v, p, c) --Actual visual real HUD is in LUA_ACROHUD  - debug's 
 			end
 			
 			v.drawString(50 + sox,soy,p.turbopercent .. "%", V_SNAPTOLEFT,"center")
-			if p.turboDisplayTimer < p.displayDuration  then
+			if p.turboDisplayTimer > 0  then
 				v.drawString(50 + sox,soy + 10, p.turboaction , V_SNAPTOLEFT,"center")
 				v.drawString(50 + sox,20+soy, p.turbogain , V_SNAPTOLEFT,"center")
 			end
