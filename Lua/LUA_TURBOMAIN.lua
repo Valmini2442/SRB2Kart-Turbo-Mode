@@ -276,14 +276,16 @@ local function handlePlayerActions(p)
     -- Tricks
 	if acrobasics then
 		if p.trickboostburst then print("Boost Burst :" .. p.trickboostburst)end
+		if p.hastricked then print("Has Tricked")end
+		if p.trickactive then print("Trick active")end
 		if p.hastricked or (p.trickactive and p.trickboostburst > 0) then
 			processTrick(p)
 		end
 	end
 	
 	if acrobatics then
-		if p.trickboostburst then print("Boost Burst :" .. p.trickboostburst)end
-		if p.hastricked or (p.trickactive and p.trickboostburst > 0) then
+		if p.trickboostburst > 0 then print("Boost Burst :" .. p.trickboostburst)end
+		if p.trickactive and p.trickboostburst > 0 then
 			processTrick(p)
 		end
 	end
